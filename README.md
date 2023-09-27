@@ -1,5 +1,5 @@
 # docker-php-apache-for-mediawiki
-[Dockerfile](https://github.com/jaideraf/docker-php-apache-for-mediawiki) for [jaideraf/phpyaz](https://hub.docker.com/repository/docker/jaideraf/php-apache-for-mediawiki)
+[Dockerfile](https://github.com/jaideraf/docker-php-apache-for-mediawiki) for [jaideraf/php-apache-for-mediawiki](https://hub.docker.com/repository/docker/jaideraf/php-apache-for-mediawiki)
 
 PHP 8.0 with Apache and several PHP modules (timezone from America/Sao_Paulo). Includes the following PHP modules/extensions:
 ```
