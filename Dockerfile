@@ -1,0 +1,86 @@
+FROM php:8.0-apache
+
+# set timezone
+ENV TZ=America/Sao_Paulo
+RUN set -eux; \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+    git \
+    imagemagick \
+    libfreetype-dev \
+    libicu-dev \
+    libjpeg62-turbo-dev \
+    libldap2-dev \
+    liblua5.1-0-dev \
+    libmagickwand-dev \
+    libpng-dev \
+    unzip \
+    zip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/
+
+RUN docker-php-ext-install -j$(nproc) \
+    calendar \
+    exif \
+    gd \
+    intl \
+    ldap \
+    mysqli \
+    opcache \
+    sockets
+
+RUN pecl install apcu; \
+    docker-php-ext-enable apcu
+
+RUN pecl install imagick; \
+    docker-php-ext-enable imagick
+
+RUN pecl install luasandbox; \
+    docker-php-ext-enable luasandbox
+
+WORKDIR /opt
+
+# wikidiff2 dependencies
+
+RUN curl -OL https://github.com/tlwg/libdatrie/releases/download/v0.2.13/libdatrie-0.2.13.tar.xz
+RUN tar -xf libdatrie-0.2.13.tar.xz \
+    && cd libdatrie-0.2.13 \
+    && ./configure \
+    && make \
+    && make install
+
+RUN curl -OL https://github.com/tlwg/libthai/releases/download/v0.1.29/libthai-0.1.29.tar.xz
+RUN tar -xf libthai-0.1.29.tar.xz \
+    && cd libthai-0.1.29 \
+    && ./configure \
+    && make \
+    && make install
+
+RUN curl -OL https://releases.wikimedia.org/wikidiff2/wikidiff2-1.14.1.tar.gz
+RUN tar -xf wikidiff2-1.14.1.tar.gz \
+    && cd wikidiff2-1.14.1 \
+    && phpize \
+    && ./configure \
+    && make \
+    && make install
+RUN docker-php-ext-enable wikidiff2
+
+# clear
+RUN rm -r libdatrie-0.2.13.tar.xz \
+    libdatrie-0.2.13 \
+    libthai-0.1.29.tar.xz \
+    libthai-0.1.29 \
+    wikidiff2-1.14.1.tar.gz \
+    wikidiff2-1.14.1
+
+# install composer
+
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /var/www/html
