@@ -1,4 +1,4 @@
-FROM php:8.0-apache
+FROM php:8.4-apache
 
 # set timezone
 ENV TZ=America/Sao_Paulo
