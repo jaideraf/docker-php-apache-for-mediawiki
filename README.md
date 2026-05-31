@@ -15,7 +15,6 @@ dom
 exif
 fileinfo
 filter
-ftp
 gd
 hash
 iconv
@@ -34,6 +33,7 @@ PDO
 pdo_sqlite
 Phar
 posix
+random
 readline
 Reflection
 session
